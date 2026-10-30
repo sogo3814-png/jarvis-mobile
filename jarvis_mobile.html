@@ -1,0 +1,90 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>J.A.R.V.I.S. Mobile</title>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;background:#07111f;color:#b9f5ff;
+  font-family:Arial,sans-serif;text-align:center;
+  padding:28px 18px;
+}
+h1{letter-spacing:5px;color:#55eaff}
+.panel{
+  max-width:500px;margin:30px auto;padding:22px;
+  border:1px solid #168ca8;border-radius:18px;
+  background:#0b1c2d;box-shadow:0 0 22px #087c9b55;
+}
+#status{color:#66eaff;margin:18px}
+input{
+  width:100%;padding:14px;border-radius:10px;
+  border:1px solid #168ca8;background:#06101c;
+  color:white;font-size:16px;
+}
+button{
+  margin:8px;padding:12px 18px;border:0;
+  border-radius:10px;background:#087f9e;
+  color:white;font-size:15px;
+}
+#answer{min-height:50px;line-height:1.7}
+.small{color:#769aaa;font-size:12px}
+</style>
+</head>
+<body>
+<h1>J.A.R.V.I.S.</h1>
+<p class="small">PERSONAL ASSISTANT SYSTEM</p>
+<div class="panel">
+  <div id="status">SYSTEM ONLINE</div>
+  <p id="answer">お待ちしておりました。</p>
+  <input id="message" placeholder="メッセージを入力">
+  <button onclick="send()">送信</button>
+  <button onclick="listen()">音声入力</button>
+  <button onclick="speak()">読み上げ</button>
+</div>
+<p class="small">J.A.R.V.I.S. MOBILE / LOCAL DEMO</p>
+<script>
+const answer=document.getElementById("answer");
+const input=document.getElementById("message");
+
+function send(){
+ const q=input.value.trim();
+ if(!q)return;
+ let a="申し訳ありません。その指示はまだ学習しておりません。";
+ if(q.includes("こんにちは"))a="こんにちは。システムは正常に稼働しています。";
+ else if(q.includes("名前"))a="私はJ.A.R.V.I.S.です。";
+ else if(q.includes("時間"))a="端末の時刻をご確認ください。";
+ else if(q.includes("ありがとう"))a="どういたしまして。";
+ else if(q.includes("調子"))a="全システム、オンラインです。";
+ answer.textContent=a;
+ input.value="";
+}
+function speak(){
+ if(!("speechSynthesis" in window)){
+  answer.textContent="このブラウザでは音声読み上げに対応していません。";
+  return;
+ }
+ const u=new SpeechSynthesisUtterance(answer.textContent);
+ u.lang="ja-JP";
+ speechSynthesis.speak(u);
+}
+function listen(){
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SR){
+  answer.textContent="このブラウザでは音声入力に対応していません。";
+  return;
+ }
+ const r=new SR();
+ r.lang="ja-JP";
+ r.onresult=e=>{
+  input.value=e.results[0][0].transcript;
+  send();
+ };
+ r.onerror=()=>answer.textContent="音声入力を利用できませんでした。";
+ r.start();
+}
+</script>
+</body>
+</html>
